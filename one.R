@@ -1,0 +1,11 @@
+review<-read.csv("five.csv",stringsAsFactors = FALSE)
+review_text<-review$X...Comment
+review_source<-VectorSource(review_text)
+review_corpus<-VCorpus(review_source)
+clean_corp<-clean_corpus(review_corpus)
+review_tdm<-TermDocumentMatrix(clean_corp)
+review_m<- as.matrix(review_tdm)
+term_frequency<-rowSums(review_m)
+term_frequency<-sort(term_frequency,decreasing=TRUE)
+word_freqs<-data.frame(term=names(term_frequency),num=term_frequency)
+wordcloud(word_freqs$term,word_freqs$num,max.words=40,colors="red")

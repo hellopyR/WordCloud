@@ -1,0 +1,23 @@
+library(qdap)
+library(tm)
+library(wordcloud)
+review<-read.csv("one.csv",stringsAsFactors = FALSE)
+review_text<-review$X...Comment
+review_source<-VectorSource(review_text)
+review_corpus<-VCorpus(review_source)
+clean_corpus <- function(corpus){
+  corpus <- tm_map(review_corpus, content_transformer(replace_abbreviation))
+  corpus <- tm_map(review_corpus, removePunctuation)
+  corpus <- tm_map(review_corpus,stripWhitespace)
+  corpus <- tm_map(review_corpus, removeNumbers)
+  corpus <- tm_map(review_corpus,content_transformer(tolower))
+  corpus <- tm_map(review_corpus, removeWords, c(stopwords("en"),"stayed","indian","www","get","https","want","like","one", "coffee","well","also","time","times","delhi","grand","location","nearby","stay","malls","office","airport","room","hotel"))
+  return(corpus)
+}
+clean_corp<-clean_corpus(review_corpus)
+review_tdm<-TermDocumentMatrix(clean_corp)
+review_m<- as.matrix(review_tdm)
+term_frequency<-rowSums(review_m)
+term_frequency<-sort(term_frequency,decreasing=TRUE)
+word_freqs<-data.frame(term=names(term_frequency),num=term_frequency)
+wordcloud(word_freqs$term,word_freqs$num,max.words=40,colors="red")
